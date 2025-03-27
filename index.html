@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Iris Classifier</title>
+</head>
+<body>
+  <h1>Iris Flower Prediction</h1>
+  <form id="infer-form">
+    <label>Sepal Length: <input type="number" step="any" id="sepal_length" required></label><br>
+    <label>Sepal Width: <input type="number" step="any" id="sepal_width" required></label><br>
+    <label>Petal Length: <input type="number" step="any" id="petal_length" required></label><br>
+    <label>Petal Width: <input type="number" step="any" id="petal_width" required></label><br><br>
+    <button type="submit">Infer</button>
+  </form>
+
+  <h2 id="result"></h2>
+
+  <script>
+    document.getElementById('infer-form').addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const body = {
+        sepal_length: parseFloat(document.getElementById('sepal_length').value),
+        sepal_width: parseFloat(document.getElementById('sepal_width').value),
+        petal_length: parseFloat(document.getElementById('petal_length').value),
+        petal_width: parseFloat(document.getElementById('petal_width').value)
+      };
+
+      const response = await fetch('http://localhost:8000/infer/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+
+      const resultDiv = document.getElementById('result');
+      const result = await response.json();
+
+      // Parse nested JSON string
+      const parsed = JSON.parse(result.result);
+
+      // Format output
+      resultDiv.innerHTML = '';
+      for (const [label, prob] of Object.entries(parsed)) {
+        const line = document.createElement('div');
+        line.textContent = `${label}: ${prob.toFixed(4)}`;
+        resultDiv.appendChild(line);
+      }
+    });
+  </script>
+</body>
+</html>
