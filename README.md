@@ -15,3 +15,11 @@ This project demonstrates how to deploy a deep learning model with minimal cost 
 * 💸 Total cost: ~ $10/month
 
 The inference endpoint is live [here](http://3.17.238.30:8000/) — have fun! 🎯
+
+#### Reproducing Results
+
+To replicate the training process, including hyperparameter selection, run
+
+```bash
+bash run.sh
+```

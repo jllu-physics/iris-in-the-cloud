@@ -14,9 +14,6 @@ N_NEURONS_PER_LAYER = 16
 ACTIVATION = 'relu'
 OPTIMIZER = 'sgd'
 
-"datetime,n_neurons,activation,optimizer,train_acc,"
-"train_loss,valid_acc,valid_loss,checkpoint"
-
 class ModelRecord(BaseModel):
     fit_datetime: datetime.datetime
     n_neurons: int
@@ -86,7 +83,7 @@ if __name__ == "__main__":
     checkpoint_name = util.get_available_filename(checkpoint_base_name, "./checkpoints/")
     checkpoint_callback = tf.keras.callbacks.ModelCheckpoint("./checkpoints/" + checkpoint_name, save_best_only = True, monitor='val_accuracy', mode='max')
 
-    nn.fit(dataset_train.repeat(), epochs = 200, validation_data = dataset_valid.repeat(), steps_per_epoch=13, validation_steps = 2,callbacks = [checkpoint_callback,])
+    nn.fit(dataset_train.repeat(), epochs = 200, validation_data = dataset_valid.repeat(), steps_per_epoch=13, validation_steps = 2,callbacks = [checkpoint_callback,], verbose = 0)
 
     best_nn = tf.keras.models.load_model("./checkpoints/" + checkpoint_name)
 

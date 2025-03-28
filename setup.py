@@ -47,7 +47,7 @@ def save_feature_statistics(X, output_filename):
 
 
 def create_hyperparam_table(table_name = HYPERPARAMETER_TABLE_NAME):
-    headers = "datetime,n_neurons,activation,optimizer,train_acc,train_loss,valid_acc,valid_loss,checkpoint"
+    headers = "datetime,n_neurons,activation,optimizer,train_acc,train_loss,valid_acc,valid_loss,checkpoint\n"
     if util.if_file_exist(table_name):
         with open(table_name, 'r') as f:
             clean_first_line = f.readline().strip()
