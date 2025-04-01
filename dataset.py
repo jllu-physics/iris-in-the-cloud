@@ -1,3 +1,4 @@
+import os
 import tensorflow as tf
 
 N_FEATURES = 4
@@ -12,7 +13,7 @@ def parse_line(line):
     return features, labels
 
 def load_dataset(batch_size=8, variant = 'train', data_dir = './data/'):
-    dataset_path = data_dir + 'data_' + variant + '.csv'
+    dataset_path = os.path.join(data_dir,'data_' + variant + '.csv')
     dataset = tf.data.TextLineDataset(dataset_path).map(parse_line)
     if variant == 'train':
         dataset = dataset.shuffle(SHUFFLE_BUFFER_SIZE)

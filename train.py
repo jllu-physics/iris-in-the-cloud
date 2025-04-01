@@ -61,31 +61,42 @@ if __name__ == "__main__":
         help = "Optimizer for fitting",
         default = OPTIMIZER
     )
+    parser.add_argument(
+        "--model_version",
+        type = str,
+        help = 'model version',
+        default = datetime.datetime.now().strftime('%Y_%m_%d')
+    )
     args = parser.parse_args()
     n_neurons = args.n_neurons
     activation = args.activation
     optimizer = args.optimizer
-    
-    with open('feature_statistics.json') as f:
+    version = args.model_version
+    data_path = os.path.join('.','model_' + version + '_assets','data')
+    checkpoint_path = os.path.join('.','model_' + version + '_assets','checkpoints')
+    os.makedirs(checkpoint_path, exist_ok = True)
+
+    with open(os.path.join('.','model_' + version + '_assets',"feature_statistics.json")) as f:
         stats = json.load(f)
 
     mean = tf.constant(stats['feature_means'], dtype=tf.float32)
     std = tf.constant(stats['feature_stds'], dtype=tf.float32)
 
-    dataset_train = dataset.load_dataset(variant = 'train')
-    dataset_valid = dataset.load_dataset(variant = 'valid')
-    dataset_test = dataset.load_dataset(variant = 'test')
+    dataset_train = dataset.load_dataset(variant = 'train', data_dir=data_path)
+    dataset_valid = dataset.load_dataset(variant = 'valid', data_dir=data_path)
+    dataset_test = dataset.load_dataset(variant = 'test', data_dir=data_path)
 
     nn = model.construct_model(n_neurons, activation, mean, std)
     nn.compile(loss = 'categorical_crossentropy', optimizer = optimizer, metrics = ['accuracy'])
 
     checkpoint_base_name = 'model_' + str(n_neurons) + '_' + activation + '_' + optimizer + '.keras'
-    checkpoint_name = util.get_available_filename(checkpoint_base_name, "./checkpoints/")
-    checkpoint_callback = tf.keras.callbacks.ModelCheckpoint("./checkpoints/" + checkpoint_name, save_best_only = True, monitor='val_accuracy', mode='max')
+    checkpoint_name = util.get_available_filename(checkpoint_base_name, checkpoint_path)
+    checkpoint_full_name = os.path.join(checkpoint_path, checkpoint_name)
+    checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(checkpoint_full_name, save_best_only = True, monitor='val_accuracy', mode='max')
 
     nn.fit(dataset_train.repeat(), epochs = 200, validation_data = dataset_valid.repeat(), steps_per_epoch=13, validation_steps = 2,callbacks = [checkpoint_callback,], verbose = 0)
 
-    best_nn = tf.keras.models.load_model("./checkpoints/" + checkpoint_name)
+    best_nn = tf.keras.models.load_model(checkpoint_full_name)
 
     train_loss, train_accuracy = best_nn.evaluate(dataset_train, verbose=0, batch_size = 8, steps = 13)
     print('Train accuracy:', train_accuracy)
@@ -105,4 +116,4 @@ if __name__ == "__main__":
         checkpoint_filename = checkpoint_name
     )
 
-    add_hyperparameter_record('hyperparameter_table.csv', record)
+    add_hyperparameter_record(os.path.join('.','model_' + version + '_assets','hyperparameter_table.csv'), record)

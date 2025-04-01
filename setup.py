@@ -1,6 +1,8 @@
 import os
 import json
+import argparse
 import numpy as np
+from datetime import datetime
 import sklearn.datasets
 import sklearn.model_selection
 import sklearn.preprocessing
@@ -8,6 +10,7 @@ import util
 
 N_FEATURES = 4
 N_CLASSES = 3
+RNG_SEED = 42
 HYPERPARAMETER_TABLE_NAME = 'hyperparameter_table.csv'
 
 def download_dataset():
@@ -57,15 +60,31 @@ def create_hyperparam_table(table_name = HYPERPARAMETER_TABLE_NAME):
         f.writelines([headers,])
 
 if __name__ == '__main__':
-    data_path = './data/'
+    parser = argparse.ArgumentParser(description="Please specify the options for setup:")
+    parser.add_argument(
+        "--seed", 
+        type = int, 
+        help = "random number seed for data split",
+        default = RNG_SEED
+    )
+    parser.add_argument(
+        "--model_version",
+        type = str,
+        help = 'model version',
+        default = datetime.now().strftime('%Y_%m_%d')
+    )
+    args = parser.parse_args()
+    seed = args.seed
+    version = args.model_version
+    data_path = os.path.join('.','model_' + version + '_assets','data')
     os.makedirs(data_path, exist_ok=True)
     X, y = download_dataset()
     y = onehot_encode(y)
     data = np.hstack((X,y))
     data_train, data_valid, data_test = \
         train_valid_test_split(data)
-    save_feature_statistics(data_train[:,:N_FEATURES], "feature_statistics.json")
-    np.savetxt(data_path + 'data_train.csv', data_train, delimiter = ',')
-    np.savetxt(data_path + 'data_valid.csv', data_valid, delimiter = ',')
-    np.savetxt(data_path + 'data_test.csv', data_test, delimiter = ',')
-    create_hyperparam_table()
+    save_feature_statistics(data_train[:,:N_FEATURES], os.path.join('.','model_' + version + '_assets',"feature_statistics.json"))
+    np.savetxt(os.path.join(data_path,'data_train.csv'), data_train, delimiter = ',')
+    np.savetxt(os.path.join(data_path,'data_valid.csv'), data_valid, delimiter = ',')
+    np.savetxt(os.path.join(data_path,'data_test.csv'), data_test, delimiter = ',')
+    create_hyperparam_table(os.path.join('.','model_' + version + '_assets',HYPERPARAMETER_TABLE_NAME))

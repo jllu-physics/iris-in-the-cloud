@@ -24,7 +24,7 @@ To replicate the training process, including hyperparameter selection, run
 bash run.sh
 ```
 
-## Deploy Steps
+#### Deploy Steps
 
 1. **Launch AWS EC2 Instance**
    - Instance type: `t3.small` (should suffice for lightweight inference)
@@ -66,11 +66,11 @@ bash run.sh
 
 6. **Verify Inference Endpoint**
 
-After deploying, verify the app is running correctly:
+    After deploying, verify the app is running correctly:
 
-- Open your browser and visit:
-  `http://<your-ec2-ip>:8000/status`
+    - Open your browser and visit:
+    `http://<your-ec2-ip>:8000/status`
 
-- Or use `curl` from your local terminal:
-  ```bash
-  curl http://<your-ec2-ip>:8000/status
+    - Or use `curl` from your local terminal:
+    ```bash
+    curl http://<your-ec2-ip>:8000/status
