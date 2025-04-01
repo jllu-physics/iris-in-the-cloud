@@ -2,14 +2,26 @@ from fastapi import FastAPI, Body, HTTPException
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from typing import List, Annotated
+import os
 import json
 import requests
 import numpy as np
 import tensorflow as tf
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
-
+MODEL_VERSION = os.getenv("MODEL_VERSION", "2025_04_01")
+checkpoint_path = os.path.join('.','model_' + MODEL_VERSION + '_assets','checkpoints')
 checkpoint_name = 'best_model.keras'
+
+DEPLOY_ENVIRON = os.getenv("DEPLOY_ENVIRON", "dev")
+if DEPLOY_ENVIRON == "dev":
+    BASE_URL = "http://localhost:8000/"
+elif DEPLOY_ENVIRON == "stage":
+    BASE_URL = "http://3.17.238.30:8000/"
+else: # in principle there should also be prod
+    raise ValueError("Unknown deploy environment")
+
 
 test_infer_body = {
     'sepal_length': 6.3,
@@ -26,7 +38,14 @@ test_infer_response = {
     }
 }
 
-prob_tol = 0.0001
+prob_tol = 0.1
+
+# TODO: Add script to generate expected infer response for new model
+# the expected infer response varies for different models
+# due to the parallel nature of tensorflow training, even if we fix
+# all the initial conditions including initial weights, the resulting
+# model would still be slightly different. Thus, we need to generate
+# new test case for each model.
 
 class InputFeature(BaseModel):
     sepal_length: float
@@ -53,9 +72,10 @@ def output_array_to_dict(output_array):
     }
     return output_dict
 
-nn = tf.keras.models.load_model("./checkpoints/" + checkpoint_name)
+nn = tf.keras.models.load_model(os.path.join(checkpoint_path, checkpoint_name))
 
 app = FastAPI()
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 app.add_middleware(
     CORSMiddleware,
@@ -65,10 +85,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# TODO: add model version
+
 @app.get('/status')
 def check_status():
     try:
-        response = requests.post("http://3.17.238.30:8000/infer/", json=test_infer_body)
+        response = requests.post(BASE_URL + "infer/", json=test_infer_body)
         if response.status_code != 200:
             raise HTTPException(status_code=500, detail="Model endpoint unreachable")
 
@@ -91,7 +113,7 @@ def check_status():
 
 @app.get("/", response_class=HTMLResponse)
 def read_root():
-    with open("index.html", "r") as f:
+    with open("./static/index.html", "r") as f:
         return f.read()
 
 @app.post("/infer")

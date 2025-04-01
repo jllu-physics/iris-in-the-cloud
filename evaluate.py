@@ -30,4 +30,4 @@ if __name__ == '__main__':
     _, test_accuracy = best_nn.evaluate(dataset_test, verbose=0, batch_size = 8, steps = 13)
     print('Test accuracy:', test_accuracy)
 
-    best_nn.save(os.path.join(model_path, 'checkpoints', 'best_model_'+version+'.keras'))
+    best_nn.save(os.path.join(model_path, 'checkpoints', 'best_model.keras'))

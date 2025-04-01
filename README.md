@@ -21,10 +21,18 @@ The inference endpoint is live [here](http://3.17.238.30:8000/) â€” have fun! ðŸ
 To replicate the training process, including hyperparameter selection, run
 
 ```bash
-bash run.sh
+bash run.sh <version>
 ```
+`<version>` can be any string. For example, `bash run.sh v1.0.0`
+
 
 #### Deploy Steps
+
+0. **Prepare Config**
+   ```bash
+   bash prepare_deploy.sh <env>
+   ```
+   `<env>` can be `dev` or `stage`
 
 1. **Launch AWS EC2 Instance**
    - Instance type: `t3.small` (should suffice for lightweight inference)
@@ -74,3 +82,4 @@ bash run.sh
     - Or use `curl` from your local terminal:
     ```bash
     curl http://<your-ec2-ip>:8000/status
+    ```

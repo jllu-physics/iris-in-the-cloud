@@ -1,6 +1,7 @@
 # Project specific
 checkpoints/
 data/
+model_*_assets/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

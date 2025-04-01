@@ -15,6 +15,8 @@
 
   <h2 id="result"></h2>
 
+  <script src="./static/config.js"></script>
+
   <script>
     document.getElementById('infer-form').addEventListener('submit', async function (e) {
       e.preventDefault();
@@ -26,7 +28,7 @@
         petal_width: parseFloat(document.getElementById('petal_width').value)
       };
 
-      const response = await fetch('http://3.17.238.30:8000/infer/', {
+      const response = await fetch(CONFIG.INFER_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)

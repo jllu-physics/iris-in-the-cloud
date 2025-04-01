@@ -1,6 +1,9 @@
 # Use official TensorFlow CPU image as base
 FROM tensorflow/tensorflow:2.18.0
 
+# Environment Variable for Model Version, change accordingly
+ENV MODEL_VERSION="v1"
+
 # Set working directory
 WORKDIR .
 

@@ -11,6 +11,8 @@ import util
 N_FEATURES = 4
 N_CLASSES = 3
 RNG_SEED = 42
+VALID_RATIO = 0.1
+TEST_RATIO = 0.2
 HYPERPARAMETER_TABLE_NAME = 'hyperparameter_table.csv'
 
 def download_dataset():
@@ -73,18 +75,41 @@ if __name__ == '__main__':
         help = 'model version',
         default = datetime.now().strftime('%Y_%m_%d')
     )
+    parser.add_argument(
+        "--valid_ratio",
+        type = int,
+        help = 'validation set ratio',
+        default = VALID_RATIO
+    )
+    parser.add_argument(
+        "--test_ratio",
+        type = int,
+        help = 'test set ratio',
+        default = TEST_RATIO
+    )
     args = parser.parse_args()
     seed = args.seed
     version = args.model_version
+    valid_ratio = args.valid_ratio
+    test_ratio = args.test_ratio
     data_path = os.path.join('.','model_' + version + '_assets','data')
     os.makedirs(data_path, exist_ok=True)
     X, y = download_dataset()
     y = onehot_encode(y)
     data = np.hstack((X,y))
     data_train, data_valid, data_test = \
-        train_valid_test_split(data)
+        train_valid_test_split(data, valid_ratio=valid_ratio, test_ratio=test_ratio)
     save_feature_statistics(data_train[:,:N_FEATURES], os.path.join('.','model_' + version + '_assets',"feature_statistics.json"))
     np.savetxt(os.path.join(data_path,'data_train.csv'), data_train, delimiter = ',')
     np.savetxt(os.path.join(data_path,'data_valid.csv'), data_valid, delimiter = ',')
     np.savetxt(os.path.join(data_path,'data_test.csv'), data_test, delimiter = ',')
     create_hyperparam_table(os.path.join('.','model_' + version + '_assets',HYPERPARAMETER_TABLE_NAME))
+    
+    config = {
+        'date and time': datetime.now().strftime('%m/%d/%Y %H:%M:%S'),
+        'data split rng seed': seed,
+        'valid ratio': valid_ratio,
+        'test ratio': test_ratio
+    }
+    with open(os.path.join('.','model_' + version + '_assets','config.json'), 'w') as f:
+        json.dump(config, f)
