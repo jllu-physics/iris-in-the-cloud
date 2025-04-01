@@ -18,8 +18,8 @@ if __name__ == '__main__':
     model_path = os.path.join('.','model_' + version + '_assets',)
     df = pd.read_csv(os.path.join(model_path,'hyperparameter_table.csv'))
     best_model_checkpoint = df.sort_values(
-        by = ['valid_acc','valid_loss','train_acc','train_loss'], 
-        ascending = [False, True, False, True]
+        by = ['valid_acc','train_acc','valid_loss','train_loss'], 
+        ascending = [False, False, True, True]
     ).head(1).iloc[0]['checkpoint']
     print("Best model is: " + best_model_checkpoint)
 
