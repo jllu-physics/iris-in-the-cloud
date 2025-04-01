@@ -3,12 +3,30 @@ from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from typing import List, Annotated
 import json
+import requests
 import numpy as np
 import tensorflow as tf
 from fastapi.middleware.cors import CORSMiddleware
 
 
 checkpoint_name = 'best_model.keras'
+
+test_infer_body = {
+    'sepal_length': 6.3,
+    'sepal_width': 2.5,
+    'petal_length': 5.0,
+    'petal_width': 1.9
+}
+
+test_infer_response = {
+    "result": {
+        "setosa": 0.009818046353757381,
+        "versicolor": 0.31387802958488464,
+        "virginica": 0.6763039827346802
+    }
+}
+
+prob_tol = 0.0001
 
 class InputFeature(BaseModel):
     sepal_length: float
@@ -46,6 +64,30 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.get('/status')
+def check_status():
+    try:
+        response = requests.post("http://3.17.238.30:8000/infer/", json=test_infer_body)
+        if response.status_code != 200:
+            raise HTTPException(status_code=500, detail="Model endpoint unreachable")
+
+        output = response.json()
+        output_result = json.loads(output['result'])
+        expected_result = test_infer_response['result']
+        for key in output_result:
+            if key not in expected_result:
+                raise ValueError("Model endpoint returned result with unexpected key: " + key)
+        for key in expected_result:
+            if key not in output_result:
+                raise ValueError("Model endpoint returned result missing key: " + key)
+            if abs(output_result[key] - expected_result[key]) > prob_tol:
+                raise ValueError("Probabilities don't match for key " + key + ". "
+                                 "Expected " + str(expected_result[key]) + " found " + str(output_result[key])
+                                )
+        return {"message": "Inference endpoint status OK"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/", response_class=HTMLResponse)
 def read_root():

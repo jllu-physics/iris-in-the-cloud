@@ -26,7 +26,7 @@
         petal_width: parseFloat(document.getElementById('petal_width').value)
       };
 
-      const response = await fetch('http://http://3.17.238.30:8000/infer/', {
+      const response = await fetch('http://3.17.238.30:8000/infer/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
