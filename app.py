@@ -20,9 +20,9 @@ test_infer_body = {
 
 test_infer_response = {
     "result": {
-        "setosa": 0.009818046353757381,
-        "versicolor": 0.31387802958488464,
-        "virginica": 0.6763039827346802
+        "setosa": 0.027633268386125565,
+        "versicolor": 0.31605255603790283,
+        "virginica": 0.6563141345977783
     }
 }
 
