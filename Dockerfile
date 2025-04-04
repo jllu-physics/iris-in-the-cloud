@@ -4,6 +4,9 @@ FROM tensorflow/tensorflow:2.18.0
 # Environment Variable for Model Version, change accordingly
 ENV MODEL_VERSION="v1"
 
+# Environment Variable for Deployment Environment, change accordingly
+ENV DEPLOY_ENVIRON="stage"
+
 # Set working directory
 WORKDIR .
 

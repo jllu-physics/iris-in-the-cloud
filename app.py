@@ -90,7 +90,7 @@ app.add_middleware(
 @app.get('/status')
 def check_status():
     try:
-        response = requests.post(BASE_URL + "infer/", json=test_infer_body)
+        response = requests.post(BASE_URL + "infer", json=test_infer_body)
         if response.status_code != 200:
             raise HTTPException(status_code=500, detail="Model endpoint unreachable")
 
