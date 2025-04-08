@@ -15,13 +15,11 @@
 import psutil
 import os
 import logging
-import datetime
 
 class Logger:
 
     def __init__(self, log_filename = None):
         self.process = psutil.Process(os.getpid())
-        self.system_process_iter = psutil.process_iter()
 
         if log_filename is None:
             logging.basicConfig(
@@ -48,20 +46,21 @@ class Logger:
         logging.info(log_msg)
     
     def log_proc_memory(self, note = ""):
-        mem_rss = self.process.memory_info().rss
+        mem_rss_MB = self.process.memory_info().rss / 1024 / 1024
         log_msg = (
             f"{note}\n"
-            f"  PROCESS MEMORY USAGE: {mem_rss:.2f} MB (RSS)"
+            f"  PROCESS MEMORY USAGE: {mem_rss_MB:.2f} MB (RSS)"
         )
         logging.info(log_msg)
     
     def set_system_avg_cpu_percent_start_point(self):
-        _ = sum(p.cpu_percent(interval = None) for p in self.system_process_iter)
+        self.system_process_list = list(psutil.process_iter())
+        _ = sum(p.cpu_percent(interval = None) for p in self.system_process_list)
     
     def log_system_avg_cpu_percent(self, note = ""):
         avg_cpu_percent = sum(
-            p.cpu_percent(interval=None) 
-            for p in self.system_process_iter
+            get_proc_cpu_pct_safe(p) 
+            for p in self.system_process_list
         )
         log_msg = (
             f"{note}\n"
@@ -70,12 +69,21 @@ class Logger:
         logging.info(log_msg)
     
     def log_system_memory(self, note = ""):
-        mem_rss = sum(
+        mem_rss_MB = sum(
             p.memory_info().rss
-            for p in self.system_process_iter
-        )
+            for p in self.system_process_list
+        ) / 1024 / 1024
         log_msg = (
             f"{note}\n"
-            f"  SYSTEM MEMORY USAGE: {mem_rss:.2f} MB (RSS)"
+            f"  SYSTEM MEMORY USAGE: {mem_rss_MB:.2f} MB (RSS)"
         )
         logging.info(log_msg)
+
+def get_proc_cpu_pct_safe(proc):
+    try:
+        cpu_pct = proc.cpu_percent(interval = None)
+        return cpu_pct
+    except psutil.NoSuchProcess:
+        return 0
+    except psutil.AccessDenied:
+        return 0
