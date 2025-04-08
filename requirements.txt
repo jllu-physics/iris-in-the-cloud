@@ -1,3 +1,4 @@
 fastapi[standard]==0.115.8
 pydantic==2.10.6
 tensorflow==2.18.0
+psutil==5.9.0

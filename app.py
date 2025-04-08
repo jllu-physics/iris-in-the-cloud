@@ -9,11 +9,13 @@ import numpy as np
 import tensorflow as tf
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from logger import Logger
 
 MODEL_VERSION = os.getenv("MODEL_VERSION", "2025_04_01")
 checkpoint_path = os.path.join('.','model_' + MODEL_VERSION + '_assets','checkpoints')
 checkpoint_name = 'best_model.keras'
 BASE_URL = os.getenv("BASE_URL", "http://localhost:8000/")
+LOG_FILENAME = os.getenv("LOG_FILENAME", "log.txt")
 
 test_infer_body = {
     'sepal_length': 6.3,
@@ -65,6 +67,7 @@ def output_array_to_dict(output_array):
     return output_dict
 
 nn = tf.keras.models.load_model(os.path.join(checkpoint_path, checkpoint_name))
+logger = Logger(log_filename=LOG_FILENAME)
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -118,6 +121,12 @@ def serve_config():
 @app.post("/infer")
 def infer(input_feature: Annotated[InputFeature, Body()]):
     x = feature_to_array(input_feature).reshape(1,-1)
+    logger.set_system_avg_cpu_percent_start_point()
+    logger.set_proc_avg_cpu_percent_start_point()
     probs = nn.predict(x)[0]
+    logger.log_proc_avg_cpu_percent()
+    logger.log_system_avg_cpu_percent()
+    logger.log_proc_memory()
+    logger.log_system_memory()
     output_dict = output_array_to_dict(probs)
     return {'result':json.dumps(output_dict)}

@@ -34,6 +34,14 @@ bash run.sh <version>
    ```
    `<env>` can be `dev` or `stage`
 
+   Create `.env` file with content like
+   ```bash
+   MODEL_VERSION=v1
+   DEPLOY_ENVIRON=dev
+   BASE_URL=http://localhost:8000/
+   LOG_FILENAME=./logs/log.txt
+   ```
+
 1. **Launch AWS EC2 Instance**
    - Instance type: `t3.small` (should suffice for lightweight inference)
    - Ensure security group allows inbound access on port 8000 (or 80/443 if you're proxying)
@@ -62,10 +70,12 @@ bash run.sh <version>
    ```bash
    sudo docker run -d \
        -p 8000:8000 \
+       -v ./logs:/logs \
        --name infer_container \
        --restart=always \
        --memory="1.5g" \
        --cpus="1.5" \
+       --env-file .env\
        infer_image
    ```
 
