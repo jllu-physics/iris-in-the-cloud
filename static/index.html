@@ -15,7 +15,7 @@
 
   <h2 id="result"></h2>
 
-  <script src="./static/config.js"></script>
+  <script src="./config.js"></script>
 
   <script>
     document.getElementById('infer-form').addEventListener('submit', async function (e) {
@@ -27,8 +27,9 @@
         petal_length: parseFloat(document.getElementById('petal_length').value),
         petal_width: parseFloat(document.getElementById('petal_width').value)
       };
-
-      const response = await fetch(CONFIG.INFER_URL, {
+      
+      const infer_url = BASE_URL + 'infer';
+      const response = await fetch(infer_url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)

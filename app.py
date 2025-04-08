@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Body, HTTPException
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, Response
 from pydantic import BaseModel
 from typing import List, Annotated
 import os
@@ -13,15 +13,7 @@ from fastapi.staticfiles import StaticFiles
 MODEL_VERSION = os.getenv("MODEL_VERSION", "2025_04_01")
 checkpoint_path = os.path.join('.','model_' + MODEL_VERSION + '_assets','checkpoints')
 checkpoint_name = 'best_model.keras'
-
-DEPLOY_ENVIRON = os.getenv("DEPLOY_ENVIRON", "dev")
-if DEPLOY_ENVIRON == "dev":
-    BASE_URL = "http://localhost:8000/"
-elif DEPLOY_ENVIRON == "stage":
-    BASE_URL = "http://3.17.238.30:8000/"
-else: # in principle there should also be prod
-    raise ValueError("Unknown deploy environment")
-
+BASE_URL = os.getenv("BASE_URL", "http://localhost:8000/")
 
 test_infer_body = {
     'sepal_length': 6.3,
@@ -115,6 +107,13 @@ def check_status():
 def read_root():
     with open("./static/index.html", "r") as f:
         return f.read()
+
+# dynamically serve config.js, now the base_url has single
+# source of the truth, which is environmental variable
+@app.get("/config.js")
+def serve_config():
+    js = f"const BASE_URL = '{BASE_URL}';"
+    return Response(content=js, media_type="application/javascript")
 
 @app.post("/infer")
 def infer(input_feature: Annotated[InputFeature, Body()]):

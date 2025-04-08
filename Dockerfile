@@ -1,11 +1,7 @@
 # Use official TensorFlow CPU image as base
 FROM tensorflow/tensorflow:2.18.0
 
-# Environment Variable for Model Version, change accordingly
-ENV MODEL_VERSION="v1"
-
-# Environment Variable for Deployment Environment, change accordingly
-ENV DEPLOY_ENVIRON="stage"
+# Environment Variables are now consistently specified in .env
 
 # Set working directory
 WORKDIR .
@@ -20,4 +16,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Default command
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]

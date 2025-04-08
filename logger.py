@@ -69,10 +69,10 @@ class Logger:
         logging.info(log_msg)
     
     def log_system_memory(self, note = ""):
-        mem_rss_MB = sum(
-            p.memory_info().rss
-            for p in self.system_process_list
-        ) / 1024 / 1024
+        mem_rss_MB = (psutil.virtual_memory().total-psutil.virtual_memory().available) / 1024 / 1024
+        # one could iterate thru system_process_list and sum up
+        # the memory used by each process, but the memory due to
+        # shared library etc would be counted multiple times
         log_msg = (
             f"{note}\n"
             f"  SYSTEM MEMORY USAGE: {mem_rss_MB:.2f} MB (RSS)"
