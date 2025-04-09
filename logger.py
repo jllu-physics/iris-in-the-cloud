@@ -62,6 +62,10 @@ class Logger:
             get_proc_cpu_pct_safe(p) 
             for p in self.system_process_list
         )
+        # could also do this:
+        # avg_cpu_percent = psutil.cpu_percent(interval=0.1)
+        # but this is blocking, i.e. whatever process running python would pause
+        # and wait
         log_msg = (
             f"{note}\n"
             f"  AVG SYSTEM CPU USAGE: {avg_cpu_percent:.2f}%"

@@ -28,13 +28,10 @@ bash run.sh <version>
 
 #### Deploy Steps
 
-0. **Prepare Config**
-   ```bash
-   bash prepare_deploy.sh <env>
-   ```
-   `<env>` can be `dev` or `stage`
+0. **Setup Environment Variables**
 
    Create `.env` file with content like
+
    ```bash
    MODEL_VERSION=v1
    DEPLOY_ENVIRON=dev
@@ -44,11 +41,14 @@ bash run.sh <version>
 
 1. **Launch AWS EC2 Instance**
    - Instance type: `t3.small` (should suffice for lightweight inference)
-   - Ensure security group allows inbound access on port 8000 (or 80/443 if you're proxying)
+   - Ensure security group allows inbound access on port 8000
 
 2. **Copy project assets to EC2**
+
+   In the root directory of this project, run:
+
    ```bash
-   scp -i your-key.pem -r ./your-project ec2-user@<EC2-IP>:/home/ec2-user/
+   scp -i your-key.pem -r . ec2-user@<EC2-IP>:/home/ec2-user/
    ```
 
 3. **Install Docker**
@@ -62,7 +62,7 @@ bash run.sh <version>
 
 4. **Build Docker Image**
    ```bash
-   cd your-project
+   cd iris-in-the-cloud
    sudo docker build -t infer_image .
    ```
 

@@ -2,6 +2,7 @@
 checkpoints/
 data/
 model_*_assets/
+logs/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

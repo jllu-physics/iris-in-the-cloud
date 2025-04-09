@@ -81,6 +81,7 @@ app.add_middleware(
 )
 
 # TODO: add model version
+# TODO: add rate limiter
 
 @app.get('/status')
 def check_status():
@@ -123,10 +124,21 @@ def infer(input_feature: Annotated[InputFeature, Body()]):
     x = feature_to_array(input_feature).reshape(1,-1)
     logger.set_system_avg_cpu_percent_start_point()
     logger.set_proc_avg_cpu_percent_start_point()
-    probs = nn.predict(x)[0]
+    # the cpu percent measurement may be inaccurate if the
+    # prediction process is too fast. In this case, for
+    # debugging purpose, we can repeat the process many times
+    # for i in range(100):
+    #     probs = safe_predict(x)[0].numpy()
+    probs = safe_predict(x)[0].numpy()
     logger.log_proc_avg_cpu_percent()
     logger.log_system_avg_cpu_percent()
     logger.log_proc_memory()
     logger.log_system_memory()
     output_dict = output_array_to_dict(probs)
     return {'result':json.dumps(output_dict)}
+
+# tf.function decorator avoids re-creating new computational 
+# graphs every time a function runs
+@tf.function
+def safe_predict(x):
+    return nn(x)
