@@ -2,14 +2,87 @@
 <html>
 <head>
   <title>Iris Classifier</title>
-</head>
-<body>
-  <h1>Iris Flower Prediction</h1>
+  <style>
+    /* Reset default spacing */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+  
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+    }
+  
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px; /* even vertical spacing between rows */
+      max-width: 320px;
+    }
+  
+    .form-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+  
+    .form-row label {
+      width: 120px;
+      text-align: left;
+      margin-right: 10px;
+    }
+  
+    .form-row input {
+      flex: 1;
+      padding: 4px 6px;
+      text-align: left;
+      appearance: textfield;
+      -moz-appearance: textfield;
+      -webkit-appearance: none;
+    }
+  
+    .form-row input::-webkit-inner-spin-button,
+    .form-row input::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+  
+    button {
+      align-self: flex-start;
+      padding: 6px 12px;
+      margin-top: 10px;
+    }
+  </style>
+  
+  <h1 style="margin-bottom: 24px;">Iris Flower Prediction</h1>
+  <p style="margin-bottom: 16px;">
+    Online demo showcasing machine learning model deployment.<br>
+    The toy model is for the famous <a href="https://en.wikipedia.org/wiki/Iris_flower_data_set">Iris flower dataset</a>. This is a<br>
+    minimal frontend to make POST request to the inference service.
+  </p>
   <form id="infer-form">
-    <label>Sepal Length: <input type="number" step="any" id="sepal_length" required></label><br>
-    <label>Sepal Width: <input type="number" step="any" id="sepal_width" required></label><br>
-    <label>Petal Length: <input type="number" step="any" id="petal_length" required></label><br>
-    <label>Petal Width: <input type="number" step="any" id="petal_width" required></label><br><br>
+    <div class="form-row">
+      <label for="sepal_length">Sepal Length:</label>
+      <input type="number" step="any" id="sepal_length" required>
+    </div>
+  
+    <div class="form-row">
+      <label for="sepal_width">Sepal Width:</label>
+      <input type="number" step="any" id="sepal_width" required>
+    </div>
+  
+    <div class="form-row">
+      <label for="petal_length">Petal Length:</label>
+      <input type="number" step="any" id="petal_length" required>
+    </div>
+  
+    <div class="form-row">
+      <label for="petal_width">Petal Width:</label>
+      <input type="number" step="any" id="petal_width" required>
+    </div>
+  
     <button type="submit">Infer</button>
   </form>
 
